@@ -21,5 +21,7 @@ foreach ($portal in $targetPortals) {
         Write-Host "Error removing target portal $($portal.TargetPortalAddress): $_"
     }
 }
+# Restart iscsi service 
+Restart-Service -Name MSiSCSI
 
 Write-Host "All target portals have been processed."
