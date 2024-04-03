@@ -29,13 +29,13 @@ for ($i = 0; $i -lt $Number_of_cnodes; $i++) {
     $TargetPortalAddresses += "$baseIP.$($lastOctet + $i)"
 }
 
-$NodeAddres = Get-IscsiTarget
-
 # Configures an iSCSI target portal.
 foreach ($TargetPortalAddress in $TargetPortalAddresses) {
    Write-Host "Adding target portal for: $TargetPortalAddress"
    New-IscsiTargetPortal -TargetPortalAddress $TargetPortalAddress # -TargetPortalPortNumber 3260 -InitiatorPortalAddress $LocaliSCSIAddress
 }
+
+$NodeAddres = Get-IscsiTarget
 
 # Establishes a connection between the local iSCSI initiator and an iSCSI target device.
 1..$NumOfSessionsPerTargetPortalAddress | ForEach-Object {
