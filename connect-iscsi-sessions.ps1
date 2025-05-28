@@ -70,7 +70,7 @@ foreach ($TargetPortalAddress in $TargetPortalAddresses) {
     New-IscsiTargetPortal -TargetPortalAddress $TargetPortalAddress -InitiatorPortalAddress $LocaliSCSIAddress 
 }
 
-$NodeAddres = Get-IscsiTarget
+$NodeAddres = Get-IscsiTarget | Where-Object { -not $_.IsConnected } | Select-Object -ExpandProperty NodeAddress
 
 1..$NumOfSessionsPerTargetPortalAddress | ForEach-Object {
     foreach ($TargetPortalAddress in $TargetPortalAddresses) {
@@ -78,6 +78,6 @@ $NodeAddres = Get-IscsiTarget
                             -TargetPortalAddress $TargetPortalAddress `
                             -InitiatorPortalAddress $LocaliSCSIAddress `
                             -IsPersistent $true `
-                            -NodeAddress $NodeAddres.NodeAddress
+                            -NodeAddress $NodeAddres
     }
 }
