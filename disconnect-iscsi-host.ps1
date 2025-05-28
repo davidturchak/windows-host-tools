@@ -4,24 +4,39 @@ param (
 )
 # Get the list of iSCSI sessions
 if ($TargetPortalIP) {
-    # Filter sessions for the specified TargetPortal
-    $iSCSISessions = Get-IscsiSession | Where-Object { $_.TargetNodeAddress -like "*$TargetPortal*" } | Select-Object SessionIdentifier
-} else {
-    # Get all sessions if no TargetPortal is specified
-    $iSCSISessions = Get-IscsiSession | Select-Object SessionIdentifier
-}
-
-
-if ($TargetPortalIP) {
+    Write-Host "Filtering for TargetPortalIP: $TargetPortalIP"
     # Get connections matching the specified TargetPortal
     $iSCSIConnections = Get-IscsiConnection | Where-Object { $_.TargetAddress -eq $TargetPortalIP }
-    # Get session IDs from matching connections
-    $sessionIds = $iSCSIConnections | Select-Object -ExpandProperty SessionIdentifier
-    # Filter sessions based on matching session IDs
-    $iSCSISessions = Get-IscsiSession | Where-Object { $_.SessionIdentifier -in $sessionIds } | Select-Object SessionIdentifier
+    if ($null -eq $iSCSIConnections) {
+        Write-Host "No iSCSI connections found for TargetPortalIP: $TargetPortalIP"
+        $iSCSISessions = @()
+    } else {
+        Write-Host "Found $($iSCSIConnections.Count) connections for TargetPortal: $TargetPortalIP"
+        # Get associated sessions for each connection
+        $iSCSISessions = @()
+        foreach ($connection in $iSCSIConnections) {
+            try {
+                $session = Get-CimAssociatedInstance -InputObject $connection -ResultClassName "MSFT_iSCSISession" -ErrorAction Stop
+                if ($session) {
+                    $iSCSISessions += $session | Select-Object -Property SessionIdentifier
+                    Write-Host "Found session $($session.SessionIdentifier) for connection $($connection.ConnectionIdentifier)"
+                }
+            } catch {
+                Write-Host "Error retrieving session for connection $($connection.ConnectionIdentifier): $_"
+            }
+        }
+        if ($iSCSISessions.Count -eq 0) {
+            Write-Host "No iSCSI sessions found for TargetPortalIP: $TargetPortalIP"
+        }
+    }
 } else {
     # Get all sessions if no TargetPortal is specified
-    $iSCSISessions = Get-IscsiSession | Select-Object SessionIdentifier
+    $iSCSISessions = Get-IscsiSession | Select-Object -Property SessionIdentifier
+    if ($null -eq $iSCSISessions) {
+        Write-Host "No iSCSI sessions found."
+    } else {
+        Write-Host "Found $($iSCSISessions.Count) iSCSI sessions."
+    }
 }
 
 
