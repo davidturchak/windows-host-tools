@@ -1,3 +1,29 @@
+<#
+.SYNOPSIS
+Disconnects iSCSI sessions and removes iSCSI target portals, optionally filtered by a specific Target Portal IP.
+
+.DESCRIPTION
+This script disconnects all iSCSI sessions and removes associated iSCSI target portals on the local machine.
+If a specific TargetPortalIP is provided, only sessions and portals matching that IP are processed.
+
+.PARAMETER TargetPortalIP
+Optional. Specifies the IP address of the iSCSI target portal to filter connections and portals. 
+If not provided, all iSCSI sessions and portals will be processed.
+
+.EXAMPLE
+.\Remove-iSCSISessions.ps1
+Disconnects and removes all iSCSI sessions and portals.
+
+.EXAMPLE
+.\Remove-iSCSISessions.ps1 -TargetPortalIP "192.168.1.100"
+Disconnects and removes only the iSCSI sessions and portals associated with the specified target portal IP.
+
+.NOTES
+Author: David Tuchak
+Date: 2025-05-28
+Requires: PowerShell 5.1 or later, administrative privileges, MSiSCSI service
+#>
+
 param (
     [Parameter(Mandatory=$false)]
     [string]$TargetPortalIP
