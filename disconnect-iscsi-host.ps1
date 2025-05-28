@@ -10,6 +10,21 @@ if ($TargetPortalIP) {
     # Get all sessions if no TargetPortal is specified
     $iSCSISessions = Get-IscsiSession | Select-Object SessionIdentifier
 }
+
+
+if ($TargetPortalIP) {
+    # Get connections matching the specified TargetPortal
+    $iSCSIConnections = Get-IscsiConnection | Where-Object { $_.TargetAddress -eq $TargetPortalIP }
+    # Get session IDs from matching connections
+    $sessionIds = $iSCSIConnections | Select-Object -ExpandProperty SessionIdentifier
+    # Filter sessions based on matching session IDs
+    $iSCSISessions = Get-IscsiSession | Where-Object { $_.SessionIdentifier -in $sessionIds } | Select-Object SessionIdentifier
+} else {
+    # Get all sessions if no TargetPortal is specified
+    $iSCSISessions = Get-IscsiSession | Select-Object SessionIdentifier
+}
+
+
 # Run over them
 foreach ($iSCSISession in $iSCSISessions)
 {
