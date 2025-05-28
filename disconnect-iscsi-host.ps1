@@ -1,6 +1,15 @@
-# Get the list of iscsi sessions
-$iSCSISessions = Get-iSCSISession | Select-Object SessionIdentifier
-
+param (
+    [Parameter(Mandatory=$false)]
+    [string]$TargetPortalIP
+)
+# Get the list of iSCSI sessions
+if ($TargetPortalIP) {
+    # Filter sessions for the specified TargetPortal
+    $iSCSISessions = Get-IscsiSession | Where-Object { $_.TargetNodeAddress -like "*$TargetPortal*" } | Select-Object SessionIdentifier
+} else {
+    # Get all sessions if no TargetPortal is specified
+    $iSCSISessions = Get-IscsiSession | Select-Object SessionIdentifier
+}
 # Run over them
 foreach ($iSCSISession in $iSCSISessions)
 {
@@ -11,6 +20,16 @@ start-sleep 1
 
 # Get the list of iSCSI target portals
 $targetPortals = Get-IscsiTargetPortal
+
+# Get iSCSI target portals
+if ($TargetPortalIP) {
+    # Filter for the specified TargetPortal
+    $targetPortals = Get-IscsiTargetPortal | Where-Object { $_.TargetPortalAddress -eq $TargetPortalIP }
+} else {
+    # Get all target portals if no TargetPortal is specified
+    $targetPortals = Get-IscsiTargetPortal
+}
+
 
 function Get-LocaliSCSIAddress {
     # Get all IPv4 addresses of network interfaces excluding loopback
