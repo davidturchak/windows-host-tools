@@ -97,6 +97,6 @@ if (-not $NodeAddress) {
                             -TargetPortalAddress $TargetPortalAddress `
                             -InitiatorPortalAddress $LocaliSCSIAddress `
                             -IsPersistent $true `
-                            -NodeAddress $NodeAddres
+                            -NodeAddress $NodeAddress
     }
 }
