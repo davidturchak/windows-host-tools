@@ -70,7 +70,7 @@ foreach ($TargetPortalAddress in $TargetPortalAddresses) {
     New-IscsiTargetPortal -TargetPortalAddress $TargetPortalAddress -InitiatorPortalAddress $LocaliSCSIAddress 
 }
 
-$targets = Get-IscsiTarget
+$targets = @(Get-IscsiTarget)
 
 if ($targets.Count -gt 1) {
     # More than one target – filter disconnected and return all NodeAddresses
