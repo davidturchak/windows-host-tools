@@ -70,7 +70,26 @@ foreach ($TargetPortalAddress in $TargetPortalAddresses) {
     New-IscsiTargetPortal -TargetPortalAddress $TargetPortalAddress -InitiatorPortalAddress $LocaliSCSIAddress 
 }
 
-$NodeAddres = Get-IscsiTarget | Where-Object { -not $_.IsConnected } | Select-Object -ExpandProperty NodeAddress
+$targets = Get-IscsiTarget
+
+if ($targets.Count -gt 1) {
+    # More than one target – filter disconnected and return all NodeAddresses
+    $NodeAddress = $targets | Where-Object { -not $_.IsConnected } | Select-Object -ExpandProperty NodeAddress
+}
+elseif ($targets.Count -eq 1) {
+    # Only one target – take its NodeAddress directly
+    $NodeAddress = $targets.NodeAddress
+}
+else {
+    # No targets found
+    $NodeAddress = $null
+}
+
+# Exit with error if no valid targets found
+if (-not $NodeAddress) {
+    Write-Error "Can't find targets"
+    exit 1
+}
 
 1..$NumOfSessionsPerTargetPortalAddress | ForEach-Object {
     foreach ($TargetPortalAddress in $TargetPortalAddresses) {
